@@ -115,6 +115,8 @@ export default function App() {
 
   // AI curator input & logger states
   const [customSpecimenPrompt, setCustomSpecimenPrompt] = useState("");
+  const [userImageUrl, setUserImageUrl] = useState("");
+  const [userImageAuthor, setUserImageAuthor] = useState("");
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [synthesisLogs, setSynthesisLogs] = useState<string[]>([]);
   const logContainerRef = useRef<HTMLDivElement>(null);
@@ -313,8 +315,9 @@ export default function App() {
         // Synthesized specimen is appended to state list
         const newSpecimen: Specimen = {
           ...data,
-          // Fallback image in case
-          imagem_url: data.imagem_url || "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=800"
+          // Custom external image link if specified, otherwise fallback image
+          imagem_url: userImageUrl.trim() || "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=800",
+          imagem_autor: userImageAuthor.trim() || "Autoria Indeterminada"
         };
 
         setTimeout(() => {
@@ -323,6 +326,8 @@ export default function App() {
           setIsSynthesizing(false);
           setSynthesizerOpen(false);
           setCustomSpecimenPrompt("");
+          setUserImageUrl("");
+          setUserImageAuthor("");
           setActiveTab("colecoes");
         }, 1500);
 
@@ -649,6 +654,13 @@ export default function App() {
                     <div className="text-gray-300 text-[11px] font-medium uppercase tracking-widest mt-2 bg-black/40 py-1 px-2 border border-white/20 self-start">
                       {activeSpecimen.lineage}
                     </div>
+                  </div>
+
+                  {/* Photo Authorship & Storage Tag to respect Zero Storage Cost constraint */}
+                  <div className="absolute top-4 left-4 bg-black/80 px-3 py-1.5 text-[#F9F7F2] text-[9px] font-mono border border-warning-amber/40 flex flex-col sm:flex-row gap-2 backdrop-blur-xs select-all">
+                    <span className="text-warning-amber font-semibold uppercase tracking-wider">● HOSPEDAGEM EXTERNA DETECTADA</span>
+                    <span className="hidden sm:inline text-[#F9F7F2]/30">|</span>
+                    <span className="uppercase tracking-wider">CRÉDITO DE AUTORIA: {activeSpecimen.imagem_autor || activeSpecimen.imagem_url.startsWith("http") ? (activeSpecimen.imagem_autor || "Fonte Externa Pública") : "Acervo de Formas Naturais"}</span>
                   </div>
 
                   {/* Micro Indicators for interactive feel */}
@@ -2130,11 +2142,11 @@ export default function App() {
 
                   <div className="space-y-1">
                     <label className="text-[9px] font-bold text-secondary-grey/85 uppercase tracking-widest block font-mono">
-                      Parâmetros descritivos ou notas científicas do espécime
+                      Parâmetros descritivos ou notas científicas do espécime *
                     </label>
                     <textarea
                       required
-                      rows={4}
+                      rows={3}
                       value={customSpecimenPrompt}
                       onChange={(e) => setCustomSpecimenPrompt(e.target.value)}
                       placeholder="Descreva a estrutura, simetria, porosidade e local de amostragem virtual..."
@@ -2142,8 +2154,48 @@ export default function App() {
                     />
                   </div>
 
-                  <div className="bg-[#FAF9F6] p-4 border border-primary/10 text-xs text-secondary-grey/90 leading-relaxed font-mono">
-                    <strong>Sinal Técnico:</strong> Chamada server-side segura ao modelo Gemini, gerando um registro taxonômico rigorosamente catalogado que se comportará realisticamente no Simulador Físico.
+                  {/* External Media Hosting & Authorship inputs */}
+                  <div className="p-4 border border-warning-amber/20 bg-warning-amber/5 text-[10px] font-mono text-secondary-grey/90 leading-relaxed space-y-3">
+                    <div className="font-semibold text-primary uppercase tracking-wide flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-warning-amber" />
+                      Hospedagem Externa de Mídia & Autoria
+                    </div>
+                    <p className="text-[10px] leading-normal text-secondary-grey/85">
+                      Para manter os custos de armazenamento do servidor em zero, as imagens devem estar hospedadas externamente. Forneça o link público direto da imagem e informe a autoria para os devidos créditos.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-bold text-primary uppercase tracking-wider block">
+                          Link Direto da Imagem (URL) *
+                        </label>
+                        <input
+                          type="url"
+                          required
+                          value={userImageUrl}
+                          onChange={(e) => setUserImageUrl(e.target.value)}
+                          placeholder="Ex: https://images.unsplash.com/photo-..."
+                          className="w-full p-2 border border-primary/15 text-xs font-mono focus:outline-none focus:bg-white placeholder:text-secondary-grey/40 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-bold text-primary uppercase tracking-wider block">
+                          Autoria / Crédito *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={userImageAuthor}
+                          onChange={(e) => setUserImageAuthor(e.target.value)}
+                          placeholder="Ex: National Geographic / Nikon Small World"
+                          className="w-full p-2 border border-primary/15 text-xs font-mono focus:outline-none focus:bg-white placeholder:text-secondary-grey/40 bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#FAF9F6] p-4 border border-primary/10 text-[10px] text-secondary-grey/90 leading-relaxed font-mono">
+                    <strong>Sinal Técnico:</strong> Chamada server-side segura ao modelo Gemini, gerando um registro taxonômico rigorosamente catalogado que se comportará realisticamente no Simulador Físico com a mídia integrada.
                   </div>
 
                   <div className="flex justify-end gap-3 pt-3">
@@ -2156,7 +2208,7 @@ export default function App() {
                     </button>
                     <button
                       type="submit"
-                      disabled={!customSpecimenPrompt.trim()}
+                      disabled={!customSpecimenPrompt.trim() || !userImageUrl.trim() || !userImageAuthor.trim()}
                       className="px-5 py-2 bg-primary text-[#F9F7F2] text-xs font-bold uppercase tracking-widest font-mono border border-primary/10 hover:bg-[#1a1a1a] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
                     >
                       <Sparkles className="w-3.5 h-3.5" />

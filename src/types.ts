@@ -38,6 +38,7 @@ export interface Specimen {
   nome: string; // e.g. Hexancastra sp.
   lineage: string; // e.g. FILO: RETARIA | CLASSE: POLYCYSTINA | ORDEM: SPUMELLARIA
   imagem_url: string;
+  imagem_autor?: string;
   image_prompt?: string;
   descricao_funcional: string;
   logica_ramificacao: string;
