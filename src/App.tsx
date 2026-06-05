@@ -386,7 +386,6 @@ export default function App() {
       {/* TopNavBar */}
       <header className="border-b border-primary bg-background-antique fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-10 h-16 transition-colors duration-200">
         <div className="flex items-baseline gap-2 cursor-pointer select-none" onClick={() => { setActiveTab("colecoes"); }}>
-          <span className="hidden xl:inline text-[9px] font-bold text-warning-amber tracking-[0.3em] uppercase">VOL. 12 / ISS. 04</span>
           <div className="font-serif italic text-2xl font-semibold tracking-tighter text-primary hover:opacity-85 transition-opacity">
             Archive
           </div>
