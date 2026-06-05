@@ -2133,13 +2133,14 @@ export default function App() {
                 )}
               </div>
 
-              {!isSynthesizing ? (
-                <form onSubmit={handleAISynthesis} className="space-y-4">
-                  <p className="text-xs text-secondary-grey/90 font-sans leading-relaxed">
-                    Escreva detalhadamente ou conceitualmente a estrutura geométrica, material, proveniência ou comportamento de um espécime biológico microscópico ou macroscópico (ex: <i>"Cesta-de-flores-de-Vênus com treliça de sílica hialina em ângulos retos coletada a 3000 metros de profundidade"</i>). O motor de inteligência Gemini-3.5-flash sintetizará um perfil de arquivo em Brutalismo Técnico completo.
-                  </p>
+              <div className="overflow-y-auto flex-1 pr-1 custom-scrollbar">
+                {!isSynthesizing ? (
+                  <form onSubmit={handleAISynthesis} className="space-y-4">
+                    <p className="text-xs text-secondary-grey/90 font-sans leading-relaxed">
+                      Escreva detalhadamente ou conceitualmente a estrutura geométrica, material, proveniência ou comportamento de um espécime biológico microscópico ou macroscópico (ex: <i>"Cesta-de-flores-de-Vênus com treliça de sílica hialina em ângulos retos coletada a 3000 metros de profundidade"</i>). O motor de inteligência Gemini-3.5-flash sintetizará um perfil de arquivo em Brutalismo Técnico completo.
+                    </p>
 
-                  <div className="space-y-1">
+                    <div className="space-y-1">
                     <label className="text-[9px] font-bold text-secondary-grey/85 uppercase tracking-widest block font-mono">
                       Parâmetros descritivos ou notas científicas do espécime *
                     </label>
@@ -2244,6 +2245,7 @@ export default function App() {
 
                 </div>
               )}
+            </div>
             </motion.div>
           </div>
         )}
