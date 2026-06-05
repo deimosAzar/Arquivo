@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "EB Garamond", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Editorial Aesthetic refined catalog palette */
+  --color-primary: #1A1A1A;
+  --color-secondary-grey: rgba(26, 26, 26, 0.7);
+  --color-warning-amber: #C2410C;
+  --color-surface-alt: #FAF9F6;
+  --color-background-antique: #F9F7F2;
+  --color-border-primary: rgba(26, 26, 26, 0.15);
+}
+
+/* Custom technical elements styling */
+@layer base {
+  body {
+    background-color: var(--color-background-antique);
+    color: var(--color-primary);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #fbf8ff;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a1b22;
+}
+
+/* Hard edges theme (zero roundedness across the technical board to convey raw instrument aesthetic) */
+* {
+  border-radius: 0px !important;
+}

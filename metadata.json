@@ -1,0 +1,6 @@
+{
+  "name": "Acervo de Formas Naturais",
+  "description": "Arquivo digital e simulador físico de morfologia microscópica e simetria mineral de grau de curvatura radical.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
