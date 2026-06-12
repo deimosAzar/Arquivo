@@ -507,7 +507,7 @@ export default function App() {
       <div className="flex flex-1 mt-16 min-h-[calc(100vh-64px)] relative">
         
         {/* Left Side Drawer (Technical Drawer / Navigation Filter) */}
-        <aside className="bg-surface-alt fixed left-0 top-16 h-[calc(100vh-64px)] w-64 border-r border-primary/15 z-45 flex flex-col justify-between hidden md:flex">
+        <aside className="bg-surface-alt fixed left-0 top-16 h-[calc(100vh-64px)] w-64 border-r border-primary/15 z-50 flex flex-col justify-between hidden md:flex">
           
           <div className="flex flex-col flex-1 divide-y divide-primary/15">
             {/* Folder Identification Block */}
@@ -2005,7 +2005,7 @@ export default function App() {
       <AnimatePresence>
         {exportModalSpecimen && (
           <div
-            className="fixed inset-0 bg-black/55 z-50 flex items-center justify-center p-4 backdrop-blur-[2px] overflow-auto"
+            className="fixed inset-0 bg-black/55 z-60 flex items-center justify-center p-4 backdrop-blur-[2px] overflow-auto"
             onClick={() => setExportModalSpecimen(null)}
           >
             <motion.div
@@ -2287,7 +2287,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Global Specimen Footer */}
-      <footer className="border-t border-primary/15 bg-[#FAF9F6] fixed bottom-0 left-0 w-full z-45 py-3.5 px-4 md:px-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-[10px] font-mono leading-none bg-opacity-95 backdrop-blur-[2px]">
+      <footer className="border-t border-primary/15 bg-[#FAF9F6] fixed bottom-0 left-0 w-full z-40 py-3.5 px-4 md:px-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-[10px] font-mono leading-none bg-opacity-95 backdrop-blur-[2px]">
         <div>
           <span className="font-bold text-primary tracking-wider font-sans text-[11px]">ACERVO DE FORMAS NATURAIS</span>
           <span className="text-secondary-grey/80 ml-3 font-mono">
