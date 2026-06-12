@@ -2446,7 +2446,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Global Specimen Footer */}
-      <footer className="border-t border-primary/15 bg-[#FAF9F6] fixed bottom-0 left-0 w-full z-40 py-3.5 px-4 md:px-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-[10px] font-mono leading-none bg-opacity-95 backdrop-blur-[2px]">
+      <footer className="border-t border-primary/15 bg-[#FAF9F6] fixed bottom-0 left-0 md:left-64 w-full md:w-[calc(100%-16rem)] z-40 py-3.5 px-4 md:px-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-[10px] font-mono leading-none bg-opacity-95 backdrop-blur-[2px]">
         <div>
           <span className="font-bold text-primary tracking-wider font-sans text-[11px]">ACERVO DE FORMAS NATURAIS</span>
           <span className="text-secondary-grey/80 ml-3 font-mono">
