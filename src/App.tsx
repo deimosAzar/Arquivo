@@ -127,6 +127,28 @@ export default function App() {
     return found || specimens[0] || initialSpecimens[0];
   }, [specimens, activeSpecimenId]);
 
+  useEffect(() => {
+    const fetchSpecimens = async () => {
+      try {
+        const response = await fetch("/api/specimens");
+        if (!response.ok) {
+          console.warn("Falha ao carregar espécimes do servidor Supabase.");
+          return;
+        }
+
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setSpecimens(data);
+          setActiveSpecimenId(data[0]?.id || activeSpecimenId);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar espécimes:", error);
+      }
+    };
+
+    fetchSpecimens();
+  }, []);
+
   // Group specimens by geographical locations dynamically
   const specimensByLocation = useMemo(() => {
     const locationsMap: Record<string, {

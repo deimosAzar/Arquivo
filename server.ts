@@ -3,9 +3,21 @@ import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
+import { createClient } from "@supabase/supabase-js";
+import { initialSpecimens } from "./src/data";
 
 // Ensure environment variables are loaded
 dotenv.config();
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_TABLE = "specimens";
+
+const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    })
+  : null;
 
 // Shared Gemini API setup with telemetry user-agent
 const ai = new GoogleGenAI({
@@ -27,6 +39,57 @@ async function startServer() {
   // API endpoints FIRST
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  app.get("/api/specimens", async (req, res) => {
+    if (!supabase) {
+      return res.json(initialSpecimens);
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from(SUPABASE_TABLE)
+        .select("*");
+
+      if (error) {
+        console.error("Erro ao buscar espécimes do Supabase:", error.message);
+        return res.json(initialSpecimens);
+      }
+
+      return res.json(Array.isArray(data) ? data : initialSpecimens);
+    } catch (error) {
+      console.error("Erro inesperado ao buscar espécimes:", error);
+      return res.json(initialSpecimens);
+    }
+  });
+
+  app.post("/api/specimens", async (req, res) => {
+    if (!supabase) {
+      return res.status(500).json({
+        error: "SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY não foram configurados.",
+      });
+    }
+
+    const specimen = req.body;
+    if (!specimen || !specimen.id) {
+      return res.status(400).json({ error: "Espécime inválido ou ID ausente." });
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from(SUPABASE_TABLE)
+        .insert([specimen]);
+
+      if (error) {
+        console.error("Erro ao inserir espécime no Supabase:", error.message);
+        return res.status(500).json({ error: error.message });
+      }
+
+      return res.json(data?.[0] ?? specimen);
+    } catch (err) {
+      console.error("Erro inesperado ao salvar espécime:", err);
+      return res.status(500).json({ error: "Erro inesperado ao salvar o espécime." });
+    }
   });
 
   // Specimen AI generator proxy route
@@ -191,9 +254,21 @@ Regras de campos específicos:
       const textOutput = response.text?.trim() || "{}";
       const parsedData = JSON.parse(textOutput);
 
-      // We assign a beautiful visual pattern or a high quality placeholder scientific image.
-      // Since it is newly synthesized, we look for natural representations or assign a gorgeous scientific visualization color array
       parsedData.imagem_url = "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=800"; // Microscopic tech representation
+
+      if (supabase) {
+        try {
+          const { error: insertError } = await supabase
+            .from(SUPABASE_TABLE)
+            .insert([{ ...parsedData }]);
+
+          if (insertError) {
+            console.error("Supabase insert error:", insertError.message);
+          }
+        } catch (insertErr) {
+          console.error("Unexpected Supabase insert failure:", insertErr);
+        }
+      }
 
       res.json(parsedData);
     } catch (err: any) {
