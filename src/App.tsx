@@ -27,11 +27,14 @@ import { initialSpecimens } from "./data";
 import { Specimen } from "./types";
 
 export default function App() {
-  // Application tab states: 'colecoes' | 'taxonomia' | 'cronologia' | 'proveniencia' | 'microscopia'
-  const [activeTab, setActiveTab] = useState<"colecoes" | "taxonomia" | "cronologia" | "proveniencia" | "microscopia">("colecoes");
+  // Application tab states: 'colecoes' | 'taxonomia' | 'cronologia' | 'proveniencia' | 'microscopia' | 'busca'
+  const [activeTab, setActiveTab] = useState<"colecoes" | "taxonomia" | "cronologia" | "proveniencia" | "microscopia" | "busca">("colecoes");
 
   // Filter and search states
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [searchResults, setSearchResults] = useState<Specimen[]>([]);
+  const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [activeSpecimenId, setActiveSpecimenId] = useState("HEX_042");
   const [specimens, setSpecimens] = useState<Specimen[]>(initialSpecimens);
 
@@ -53,6 +56,18 @@ export default function App() {
       );
     });
   }, [specimens, searchQuery]);
+
+  // Update dropdown results whenever search query changes
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const results = filteredSpecimens.slice(0, 8); // Limit to 8 results
+      setSearchResults(results);
+      setShowSearchDropdown(true);
+    } else {
+      setShowSearchDropdown(false);
+      setSearchResults([]);
+    }
+  }, [filteredSpecimens, searchQuery]);
 
   // Group specimens based on selected mode for "Sieve do Arquivo" folder explorer
   const sidebarGroupedSpecimens = useMemo(() => {
@@ -468,20 +483,61 @@ export default function App() {
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                // Switch back to catalog list when searching for immediate visual results
-                if (activeTab !== "colecoes" && activeTab !== "taxonomia" && activeTab !== "cronologia" && activeTab !== "proveniencia") {
-                  setActiveTab("colecoes");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchQuery.trim()) {
+                  setLastSearchQuery(searchQuery);
+                  setActiveTab("busca");
+                  setShowSearchDropdown(false);
                 }
               }}
               className="bg-transparent text-xs text-primary focus:outline-none w-full font-mono placeholder:text-gray-400"
             />
             {searchQuery && (
               <button 
-                onClick={() => setSearchQuery("")} 
+                onClick={() => {
+                  setSearchQuery("");
+                  setShowSearchDropdown(false);
+                }} 
                 className="absolute right-2 text-secondary-grey hover:text-primary"
               >
                 <X className="w-3 h-3" />
               </button>
+            )}
+            {/* Search Dropdown Results */}
+            {showSearchDropdown && searchResults.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="absolute top-full left-0 right-0 mt-1 bg-white border border-primary shadow-lg z-60 max-h-64 overflow-y-auto"
+              >
+                {searchResults.map((spec) => (
+                  <button
+                    key={spec.id}
+                    onClick={() => {
+                      setActiveSpecimenId(spec.id);
+                      setActiveTab("colecoes");
+                      setShowSearchDropdown(false);
+                      setSearchQuery("");
+                    }}
+                    className="w-full px-3 py-2 text-left text-xs font-mono hover:bg-primary/10 border-b border-primary/10 last:border-b-0 text-primary transition-colors"
+                  >
+                    <div className="font-bold truncate">{spec.nome}</div>
+                    <div className="text-[10px] text-secondary-grey truncate">{spec.id} · {spec.lineage.split("|")[0]}</div>
+                  </button>
+                ))}
+                <div
+                  onClick={() => {
+                    setLastSearchQuery(searchQuery);
+                    setActiveTab("busca");
+                    setShowSearchDropdown(false);
+                  }}
+                  className="px-3 py-2 text-center text-xs font-bold uppercase tracking-widest bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer border-t border-primary/10 transition-colors"
+                >
+                  Ver todos os {filteredSpecimens.length} resultados →
+                </div>
+              </motion.div>
             )}
           </div>
 
@@ -1994,6 +2050,81 @@ export default function App() {
                   </div>
 
                 </div>
+              </motion.div>
+            )}
+
+            {/* VIEW 6: SEARCH RESULTS VIEW */}
+            {activeTab === "busca" && (
+              <motion.div
+                key="search-view"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex flex-col"
+              >
+                {/* Header Section */}
+                <section className="bg-primary/10 border-b border-primary p-6 md:p-10">
+                  <h1 className="text-3xl md:text-4xl font-serif italic font-bold text-primary mb-2">
+                    Resultados da Busca
+                  </h1>
+                  <p className="text-sm text-secondary-grey font-mono">
+                    Encontrados <span className="font-bold text-primary">{filteredSpecimens.length}</span> espécimes correspondentes a: <span className="font-bold text-primary">"{lastSearchQuery}"</span>
+                  </p>
+                </section>
+
+                {/* Results Grid */}
+                {filteredSpecimens.length > 0 ? (
+                  <div className="p-6 md:p-10 flex-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filteredSpecimens.map((spec) => (
+                        <motion.button
+                          key={spec.id}
+                          onClick={() => {
+                            setActiveSpecimenId(spec.id);
+                            setActiveTab("colecoes");
+                          }}
+                          whileHover={{ scale: 1.02, y: -4 }}
+                          className="border border-primary/20 hover:border-primary bg-white p-4 text-left transition-all cursor-pointer flex flex-col gap-3"
+                        >
+                          <img
+                            src={spec.imagem_url}
+                            alt={spec.nome}
+                            className="w-full h-40 object-cover"
+                          />
+                          <div>
+                            <h3 className="font-bold text-primary italic font-serif text-base truncate">
+                              {spec.nome}
+                            </h3>
+                            <p className="text-xs text-secondary-grey font-mono truncate">
+                              ID: {spec.id}
+                            </p>
+                            <p className="text-xs text-secondary-grey font-mono truncate">
+                              {spec.lineage.split("|")[0]}
+                            </p>
+                          </div>
+                          <div className="text-[10px] text-primary font-mono uppercase tracking-widest mt-auto">
+                            Ver detalhes →
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center p-10">
+                    <div className="text-center">
+                      <p className="text-secondary-grey font-mono text-sm mb-4">
+                        Nenhum resultado encontrado para "<span className="text-primary font-bold">{lastSearchQuery}</span>"
+                      </p>
+                      <button
+                        onClick={() => setActiveTab("colecoes")}
+                        className="px-4 py-2 border border-primary text-xs font-bold uppercase tracking-widest bg-white text-primary hover:bg-primary hover:text-white transition-all"
+                      >
+                        Voltar às Coleções
+                      </button>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
