@@ -357,6 +357,34 @@ export default function App() {
           imagem_autor: userImageAuthor.trim() || "Autoria Indeterminada"
         };
 
+        // Save to Supabase
+        try {
+          const saveResponse = await fetch("/api/specimens", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newSpecimen),
+          });
+
+          if (saveResponse.ok) {
+            setSynthesisLogs((prev) => [
+              ...prev,
+              "[SUPABASE] Espécime persistido no banco de dados remoto com sucesso!"
+            ]);
+          } else {
+            console.warn("Falha ao salvar no Supabase, mas espécime foi mantido localmente.");
+            setSynthesisLogs((prev) => [
+              ...prev,
+              "[AVISO] Supabase offline - espécime salvo apenas localmente"
+            ]);
+          }
+        } catch (supabaseErr) {
+          console.error("Erro ao salvar no Supabase:", supabaseErr);
+          setSynthesisLogs((prev) => [
+            ...prev,
+            "[AVISO] Falha na sincronização com Supabase - dados salvos localmente"
+          ]);
+        }
+
         setTimeout(() => {
           setSpecimens((prev) => [newSpecimen, ...prev]);
           setActiveSpecimenId(newSpecimen.id);
