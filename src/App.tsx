@@ -357,7 +357,9 @@ export default function App() {
           imagem_autor: userImageAuthor.trim() || "Autoria Indeterminada"
         };
 
-        // Save to Supabase
+        // Save to Supabase and use the record returned by the server
+        let savedSpecimen: Specimen = newSpecimen;
+
         try {
           const saveResponse = await fetch("/api/specimens", {
             method: "POST",
@@ -366,6 +368,8 @@ export default function App() {
           });
 
           if (saveResponse.ok) {
+            const savedData = await saveResponse.json();
+            savedSpecimen = savedData as Specimen;
             setSynthesisLogs((prev) => [
               ...prev,
               "[SUPABASE] Espécime persistido no banco de dados remoto com sucesso!"
@@ -386,8 +390,8 @@ export default function App() {
         }
 
         setTimeout(() => {
-          setSpecimens((prev) => [newSpecimen, ...prev]);
-          setActiveSpecimenId(newSpecimen.id);
+          setSpecimens((prev) => [savedSpecimen, ...prev]);
+          setActiveSpecimenId(savedSpecimen.id);
           setIsSynthesizing(false);
           setSynthesizerOpen(false);
           setCustomSpecimenPrompt("");

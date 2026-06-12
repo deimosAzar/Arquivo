@@ -78,16 +78,16 @@ async function startServer() {
     try {
       const { data, error } = await supabase
         .from(SUPABASE_TABLE)
-        .insert([specimen]);
+        .upsert([specimen], { onConflict: "id" });
 
       if (error) {
-        console.error("Erro ao inserir espécime no Supabase:", error.message);
+        console.error("Erro ao salvar/atualizar espécime no Supabase:", error.message);
         return res.status(500).json({ error: error.message });
       }
 
       return res.json(data?.[0] ?? specimen);
     } catch (err) {
-      console.error("Erro inesperado ao salvar espécime:", err);
+      console.error("Erro inesperado ao salvar o espécime:", err);
       return res.status(500).json({ error: "Erro inesperado ao salvar o espécime." });
     }
   });
@@ -255,18 +255,19 @@ Regras de campos específicos:
       const parsedData = JSON.parse(textOutput);
 
       parsedData.imagem_url = "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=800"; // Microscopic tech representation
+      parsedData.imagem_autor = parsedData.imagem_autor || "Curadoria Gemini";
 
       if (supabase) {
         try {
-          const { error: insertError } = await supabase
+          const { error: upsertError } = await supabase
             .from(SUPABASE_TABLE)
-            .insert([{ ...parsedData }]);
+            .upsert([{ ...parsedData }], { onConflict: "id" });
 
-          if (insertError) {
-            console.error("Supabase insert error:", insertError.message);
+          if (upsertError) {
+            console.error("Erro ao persistir espécime sintetizado no Supabase:", upsertError.message);
           }
-        } catch (insertErr) {
-          console.error("Unexpected Supabase insert failure:", insertErr);
+        } catch (upsertErr) {
+          console.error("Erro inesperado ao persistir espécime sintetizado no Supabase:", upsertErr);
         }
       }
 
