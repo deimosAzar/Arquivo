@@ -2004,54 +2004,67 @@ export default function App() {
       {/* MODAL 1: EXPORT MODAL DISPLAY */}
       <AnimatePresence>
         {exportModalSpecimen && (
-          <div className="fixed inset-0 bg-black/55 z-50 flex items-center justify-center p-4 backdrop-blur-[2px]">
+          <div
+            className="fixed inset-0 bg-black/55 z-50 flex items-center justify-center p-4 backdrop-blur-[2px] overflow-auto"
+            onClick={() => setExportModalSpecimen(null)}
+          >
             <motion.div
               initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.98, opacity: 0 }}
-              className="bg-[#F9F7F2] border border-primary/15 max-w-2xl w-full p-8 relative overflow-hidden flex flex-col h-[85vh] md:h-auto shadow-xl"
+              className="bg-[#F9F7F2] border border-primary/15 max-w-3xl w-full max-h-[80vh] p-6 relative overflow-hidden flex flex-col shadow-xl"
+              onClick={(event) => event.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6 pb-3 border-b border-primary/10">
-                <div>
+              <div className="flex justify-between items-start gap-4 mb-4 pb-3 border-b border-primary/10">
+                <div className="min-w-0">
                   <span className="text-[9px] font-bold text-secondary-grey/90 uppercase tracking-[0.2em] block font-mono">
                     ARQUIVO DE GAVETA TÉCNICA EXPORT
                   </span>
-                  <h3 className="text-xl font-serif font-bold italic text-primary mt-1">
+                  <h3 className="text-lg md:text-xl font-serif font-bold italic text-primary mt-1 truncate">
                     Dados Completos: {exportModalSpecimen.nome}
                   </h3>
                 </div>
                 <button
                   onClick={() => setExportModalSpecimen(null)}
-                  className="p-1.5 border border-primary/15 hover:bg-primary/5 transition-all text-primary bg-white cursor-pointer animate-fade-in"
+                  className="p-2 border border-primary/15 hover:bg-primary/5 transition-all text-primary bg-white rounded-md cursor-pointer"
+                  aria-label="Fechar exportação"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <p className="text-xs text-secondary-grey/90 mb-5 font-sans leading-relaxed">
+              <p className="text-xs text-secondary-grey/90 mb-4 font-sans leading-relaxed">
                 Abaixo estão organizados os esquemas de representação morfológica biogênica do espécime para exportação radical e integração de dados geográficos ou taxonômicos secundários.
               </p>
 
               {/* Code field display */}
-              <div className="flex-1 bg-primary/5 text-primary p-5 font-mono text-[11px] overflow-auto h-[350px] border border-primary/10 relative leading-relaxed select-all">
+              <div className="flex-1 bg-primary/5 text-primary p-4 font-mono text-[11px] overflow-auto max-h-[55vh] border border-primary/10 relative leading-relaxed select-all">
                 <pre>{JSON.stringify(exportModalSpecimen, null, 2)}</pre>
               </div>
 
-              <div className="mt-6 pt-5 border-t border-primary/10 flex justify-end gap-3 flex-wrap">
+              <div className="mt-5 pt-4 border-t border-primary/10 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
                 <button
-                  onClick={() => copyExportDataToClipboard(exportModalSpecimen)}
-                  className="px-4 py-2 border border-primary/15 text-xs font-bold uppercase tracking-widest bg-white text-primary hover:bg-primary/5 transition-all cursor-pointer flex items-center gap-2 font-mono"
+                  onClick={() => setExportModalSpecimen(null)}
+                  className="px-4 py-2 border border-primary/15 text-xs font-bold uppercase tracking-widest bg-white text-primary hover:bg-primary/5 transition-all cursor-pointer flex items-center justify-center gap-2 font-mono"
                 >
-                  <Copy className="w-3.5 h-3.5 text-warning-amber" />
-                  Copiar JSON
+                  Fechar
                 </button>
-                <button
-                  onClick={() => downloadExportDataFile(exportModalSpecimen)}
-                  className="px-4 py-2 bg-primary text-[#F9F7F2] text-xs font-bold uppercase tracking-widest hover:bg-[#1a1a1a] border border-primary/10 transition-all cursor-pointer flex items-center gap-2 font-mono"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Baixar Arquivo .json
-                </button>
+                <div className="flex flex-wrap justify-end gap-3">
+                  <button
+                    onClick={() => copyExportDataToClipboard(exportModalSpecimen)}
+                    className="px-4 py-2 border border-primary/15 text-xs font-bold uppercase tracking-widest bg-white text-primary hover:bg-primary/5 transition-all cursor-pointer flex items-center gap-2 font-mono"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-warning-amber" />
+                    Copiar JSON
+                  </button>
+                  <button
+                    onClick={() => downloadExportDataFile(exportModalSpecimen)}
+                    className="px-4 py-2 bg-primary text-[#F9F7F2] text-xs font-bold uppercase tracking-widest hover:bg-[#1a1a1a] border border-primary/10 transition-all cursor-pointer flex items-center gap-2 font-mono"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Baixar Arquivo .json
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
