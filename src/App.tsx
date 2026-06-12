@@ -35,6 +35,7 @@ export default function App() {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [searchResults, setSearchResults] = useState<Specimen[]>([]);
   const [lastSearchQuery, setLastSearchQuery] = useState("");
+  const [collectionSearchIndex, setCollectionSearchIndex] = useState<Specimen[]>([]);
   const [activeSpecimenId, setActiveSpecimenId] = useState("HEX_042");
   const [specimens, setSpecimens] = useState<Specimen[]>(initialSpecimens);
 
@@ -62,10 +63,12 @@ export default function App() {
     if (searchQuery.trim()) {
       const results = filteredSpecimens.slice(0, 8); // Limit to 8 results
       setSearchResults(results);
+      setCollectionSearchIndex(filteredSpecimens);
       setShowSearchDropdown(true);
     } else {
       setShowSearchDropdown(false);
       setSearchResults([]);
+      setCollectionSearchIndex([]);
     }
   }, [filteredSpecimens, searchQuery]);
 
@@ -141,6 +144,28 @@ export default function App() {
     const found = specimens.find((s) => s.id === activeSpecimenId);
     return found || specimens[0] || initialSpecimens[0];
   }, [specimens, activeSpecimenId]);
+
+  const addSpecimenToCollection = (specimen: Specimen) => {
+    setSpecimens((prev) => [specimen, ...prev]);
+    setActiveSpecimenId(specimen.id);
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesQuery =
+        specimen.nome.toLowerCase().includes(query) ||
+        specimen.id.toLowerCase().includes(query) ||
+        specimen.lineage.toLowerCase().includes(query) ||
+        specimen.composicao_material.toLowerCase().includes(query);
+
+      if (matchesQuery) {
+        setSearchResults((prev) => {
+          const deduped = prev.filter((item) => item.id !== specimen.id);
+          return [specimen, ...deduped].slice(0, 8);
+        });
+        setShowSearchDropdown(true);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchSpecimens = async () => {
@@ -390,8 +415,7 @@ export default function App() {
         }
 
         setTimeout(() => {
-          setSpecimens((prev) => [savedSpecimen, ...prev]);
-          setActiveSpecimenId(savedSpecimen.id);
+          addSpecimenToCollection(savedSpecimen);
           setIsSynthesizing(false);
           setSynthesizerOpen(false);
           setCustomSpecimenPrompt("");
