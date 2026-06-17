@@ -85,7 +85,9 @@ async function startServer() {
         return res.status(500).json({ error: error.message });
       }
 
-      return res.json(data?.[0] ?? specimen);
+      const savedRows = data ?? [];
+      const savedSpecimen = savedRows.length > 0 ? savedRows[0] : specimen;
+      return res.json(savedSpecimen);
     } catch (err) {
       console.error("Erro inesperado ao salvar o espécime:", err);
       return res.status(500).json({ error: "Erro inesperado ao salvar o espécime." });
@@ -95,7 +97,7 @@ async function startServer() {
   // Specimen AI generator proxy route
   app.post("/api/gemini/analyze", async (req, res) => {
     try {
-      const { promptSpecimen, baseImage } = req.body;
+      const { promptSpecimen, imageUrl, imageAuthor } = req.body;
 
       if (!promptSpecimen) {
         return res.status(400).json({ error: "O prompt do espécime é obrigatório." });
@@ -254,8 +256,18 @@ Regras de campos específicos:
       const textOutput = response.text?.trim() || "{}";
       const parsedData = JSON.parse(textOutput);
 
-      parsedData.imagem_url = "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=800"; // Microscopic tech representation
-      parsedData.imagem_autor = parsedData.imagem_autor || "Curadoria Gemini";
+      const finalImageUrl =
+        typeof imageUrl === "string" && imageUrl.trim()
+          ? imageUrl.trim()
+          : "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=800";
+      const finalImageAuthor =
+        typeof imageAuthor === "string" && imageAuthor.trim()
+          ? imageAuthor.trim()
+          : parsedData.imagem_autor || "Curadoria Gemini";
+
+      parsedData.imagem_url = finalImageUrl;
+      parsedData.imagem_autor = finalImageAuthor;
+      parsedData.image_prompt = parsedData.image_prompt || promptSpecimen;
 
       if (supabase) {
         try {

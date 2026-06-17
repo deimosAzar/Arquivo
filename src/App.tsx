@@ -357,7 +357,11 @@ export default function App() {
       const response = await fetch("/api/gemini/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ promptSpecimen: customSpecimenPrompt }),
+        body: JSON.stringify({
+          promptSpecimen: customSpecimenPrompt,
+          imageUrl: userImageUrl.trim(),
+          imageAuthor: userImageAuthor.trim(),
+        }),
       });
 
       const data = await response.json();
