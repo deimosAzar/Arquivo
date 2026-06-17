@@ -315,9 +315,11 @@ Regras de campos específicos:
       res.json(parsedData);
     } catch (err: any) {
       console.error("Erro na síntese do espécime:", err);
-      const rawError = err?.message || "Erro desconhecido na síntese por IA.";
+      const statusCode = err?.statusCode || err?.status || err?.response?.status || 500;
+      const rawError = err?.message || err?.toString() || "Erro desconhecido na síntese por IA.";
       const parsedMessage = typeof rawError === "string" ? rawError : JSON.stringify(rawError);
-      res.status(500).json({ error: `Erro de IA: ${parsedMessage}` });
+      const status = typeof statusCode === "number" && statusCode >= 400 && statusCode < 600 ? statusCode : 500;
+      res.status(status).json({ error: `Erro de IA: ${parsedMessage}` });
     }
   });
 
