@@ -707,7 +707,7 @@ export default function App() {
 
               {sidebarGroupedSpecimens.length === 0 ? (
                 <div className="text-[10px] text-secondary-grey/60 italic p-2 border border-dashed border-primary/10">
-                  Nenhuma forma correspondente aos critérios de busca.
+                  O acervo está vazio ou nenhum espécime corresponde aos filtros atuais. Use "Sintetizar via IA" para criar seu primeiro espécime.
                 </div>
               ) : (
                 sidebarGroupedSpecimens.map((group) => (
