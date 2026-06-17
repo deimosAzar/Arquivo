@@ -165,6 +165,10 @@ export default function App() {
         const response = await fetch("/api/specimens");
         if (!response.ok) {
           console.warn("Falha ao carregar espécimes do servidor Supabase.");
+          setPopupMessage("Falha ao carregar espécimes do servidor. Verifique os logs do servidor.");
+          setPopupType("error");
+          setShowPopup(true);
+          setTimeout(() => setShowPopup(false), 5000);
           return;
         }
 
@@ -443,6 +447,11 @@ export default function App() {
         `[ERRO DE SÍNTESE] Falha na operação: ${err.message || "Erro desconhecido."}`,
         "[ALERTA] Redundância crítica - verifique os segredos ou tente novamente."
       ]);
+      // show popup error
+      setPopupMessage(`Falha na síntese: ${err.message || "Erro desconhecido."}`);
+      setPopupType("error");
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 5000);
       setIsSynthesizing(false);
     }
   };

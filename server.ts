@@ -8,6 +8,12 @@ import { initialSpecimens } from "./src/data";
 
 // Ensure environment variables are loaded
 dotenv.config();
+// Also load .env.local if present (useful in development)
+try {
+  dotenv.config({ path: ".env.local" });
+} catch (e) {
+  // ignore
+}
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
