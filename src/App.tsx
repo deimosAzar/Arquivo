@@ -2265,12 +2265,16 @@ export default function App() {
       {/* MODAL 2: USER PROFILE / CURATOR INFO (Ficha do Pesquisador) */}
       <AnimatePresence>
         {profileModalOpen && (
-          <div className="fixed inset-0 bg-black/55 z-50 flex items-center justify-center p-4 backdrop-blur-[2px]">
+          <div
+            className="fixed inset-0 bg-black/55 z-50 flex items-center justify-center p-4 backdrop-blur-[2px]"
+            onClick={() => setProfileModalOpen(false)}
+          >
             <motion.div
               initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.98, opacity: 0 }}
               className="bg-[#F9F7F2] border border-primary/15 max-w-md w-full p-8 relative overflow-hidden shadow-xl"
+              onClick={(event) => event.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6 pb-3 border-b border-primary/10">
                 <div>
@@ -2304,10 +2308,6 @@ export default function App() {
                   <div className="flex justify-between text-primary/80">
                     <span className="text-secondary-grey uppercase tracking-wider text-[10px]">INSTITUIÇÃO:</span>
                     <span className="font-semibold text-primary">Laboratório de Morfologia Digital</span>
-                  </div>
-                  <div className="flex justify-between text-primary/80">
-                    <span className="text-secondary-grey uppercase tracking-wider text-[10px]">NÍVEL DE PERMISSÃO:</span>
-                    <span className="font-semibold text-warning-amber">TRANSPARÊNCIA_RADICAL_v4</span>
                   </div>
                   <div className="flex justify-between text-primary/80">
                     <span className="text-secondary-grey uppercase tracking-wider text-[10px]">SESSÃO ATIVA DESDE:</span>
