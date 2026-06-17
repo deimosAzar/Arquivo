@@ -138,6 +138,9 @@ export default function App() {
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [synthesisLogs, setSynthesisLogs] = useState<string[]>([]);
   const logContainerRef = useRef<HTMLDivElement>(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState<"success" | "error">("success");
 
   // Selected specimen detailed record
   const activeSpecimen = useMemo(() => {
@@ -148,23 +151,12 @@ export default function App() {
   const addSpecimenToCollection = (specimen: Specimen) => {
     setSpecimens((prev) => [specimen, ...prev]);
     setActiveSpecimenId(specimen.id);
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      const matchesQuery =
-        specimen.nome.toLowerCase().includes(query) ||
-        specimen.id.toLowerCase().includes(query) ||
-        specimen.lineage.toLowerCase().includes(query) ||
-        specimen.composicao_material.toLowerCase().includes(query);
-
-      if (matchesQuery) {
-        setSearchResults((prev) => {
-          const deduped = prev.filter((item) => item.id !== specimen.id);
-          return [specimen, ...deduped].slice(0, 8);
-        });
-        setShowSearchDropdown(true);
-      }
-    }
+    // Always add the new specimen to the search results (appear in search)
+    setSearchResults((prev) => {
+      const deduped = prev.filter((item) => item.id !== specimen.id);
+      return [specimen, ...deduped].slice(0, 8);
+    });
+    setShowSearchDropdown(true);
   };
 
   useEffect(() => {
@@ -307,6 +299,13 @@ export default function App() {
     }
   }, [synthesisLogs]);
 
+  // Auto-hide popup if opened (fallback safety)
+  useEffect(() => {
+    if (!showPopup) return;
+    const t = setTimeout(() => setShowPopup(false), 4000);
+    return () => clearTimeout(t);
+  }, [showPopup]);
+
   // Handle scientific CSV/JSON copy/download trigger
   const copyExportDataToClipboard = (spec: Specimen) => {
     const dataStr = JSON.stringify(spec, null, 2);
@@ -381,7 +380,6 @@ export default function App() {
         // Synthesized specimen is appended to state list
         const newSpecimen: Specimen = {
           ...data,
-          // Custom external image link if specified, otherwise fallback image
           imagem_url: userImageUrl.trim() || "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=800",
           imagem_autor: userImageAuthor.trim() || "Autoria Indeterminada"
         };
@@ -418,8 +416,15 @@ export default function App() {
           ]);
         }
 
+        // Update UI immediately: add to collection and search
+        addSpecimenToCollection(savedSpecimen);
+        // Show success popup
+        setPopupMessage(`Síntese concluída: ${savedSpecimen.nome} (${savedSpecimen.id})`);
+        setPopupType("success");
+        setShowPopup(true);
+        setTimeout(() => setShowPopup(false), 4000);
+
         setTimeout(() => {
-          addSpecimenToCollection(savedSpecimen);
           setIsSynthesizing(false);
           setSynthesizerOpen(false);
           setCustomSpecimenPrompt("");
@@ -480,6 +485,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background-antique text-primary font-mono select-none antialiased">
+      {/* Popup notification */}
+      {showPopup && (
+        <div className={`fixed right-4 top-6 z-50 w-80 p-3 rounded shadow-lg text-sm ${popupType === "success" ? "bg-green-700 text-white" : "bg-red-700 text-white"}`}>
+          {popupMessage}
+        </div>
+      )}
       {/* TopNavBar */}
       <header className="border-b border-primary bg-background-antique fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-10 h-16 transition-colors duration-200">
         <div className="flex items-baseline gap-2 cursor-pointer select-none" onClick={() => { setActiveTab("colecoes"); }}>
