@@ -335,7 +335,7 @@ export default function App() {
     setSynthesisLogs([
       "INICIANDO CURADORIA DE ESTRUTURA NATURAL DE SÍLICA...",
       "[CONECTANDO] Servidor de Resiliência Biomecânica...",
-      "[ESTADO] Chave de API ativada: process.env.GEMINI_API_KEY",
+      "[ESTADO] Solicitando serviço de síntese Gemini...",
       `[PROMPT] "${customSpecimenPrompt}"`,
       "[PROCESSANDO] Enviando parâmetros morfológicos para o Gemini-3.5-flash..."
     ]);

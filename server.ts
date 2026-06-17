@@ -254,7 +254,30 @@ Regras de campos específicos:
       });
 
       const textOutput = response.text?.trim() || "{}";
-      const parsedData = JSON.parse(textOutput);
+      let parsedData: any;
+      try {
+        parsedData = JSON.parse(textOutput);
+      } catch (parseErr) {
+        console.error("Resposta do Gemini inválida (não é JSON):", textOutput, parseErr);
+        return res.status(502).json({ error: "Resposta do provedor de IA não está em JSON válido." });
+      }
+
+      // Basic structural validation: ensure required top-level fields exist
+      const requiredFields = [
+        "id",
+        "codigo_gaveta",
+        "gaveta_tecnica",
+        "nome",
+        "lineage",
+        "metadados_tecnicos",
+      ];
+
+      for (const fld of requiredFields) {
+        if (!parsedData || typeof parsedData[fld] === "undefined") {
+          console.error("Resposta do Gemini faltando campo obrigatório:", fld, parsedData);
+          return res.status(422).json({ error: `Resposta da IA inválida: campo ausente ${fld}` });
+        }
+      }
 
       const finalImageUrl =
         typeof imageUrl === "string" && imageUrl.trim()
